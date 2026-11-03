@@ -20,7 +20,7 @@
 .client-ticker + .section{border-top:0}
 
 
-@media(prefers-reduced-motion:reduce){.client-ticker{overflow-x:auto}}
+
 
 /* Company profile: people, engagements and quality. */
 #approach .principles{grid-template-columns:repeat(5,minmax(0,1fr));gap:28px}
@@ -63,12 +63,16 @@
 .contact-links{justify-self:end;display:grid;justify-items:end;gap:24px}
 .contact-links .contact-number{justify-self:auto}
 @media(max-width:760px){.contact-links{justify-self:start;justify-items:start;gap:16px}}
-/* Полоса услуг: статичная, без бегущей строки */
-.client-band{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 32px;padding-block:20px}
-.client-band span{display:flex;align-items:center;gap:12px;font-size:15px;font-weight:500;white-space:nowrap}
-.client-band span::before{content:'';width:6px;height:6px;border:1px solid currentColor;border-radius:50%;opacity:.65}
-@media(max-width:1100px){.client-band{justify-content:flex-start;gap:12px 32px}}
-@media(max-width:760px){.client-band{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;padding-block:20px}.client-band span{font-size:13px;white-space:normal;align-items:baseline}}
+
+/* Бегущая строка услуг: один размер на всех ширинах, бесконечная прокрутка */
+.client-ticker{overflow:hidden;background:var(--wine);color:#fff}
+.client-ticker-track{display:flex;width:max-content;animation:client-ticker 90s linear infinite}
+.client-ticker-group{display:flex;flex-shrink:0}
+.client-ticker-group span{display:flex;align-items:center;gap:32px;padding:20px 32px 20px 0;font-size:15px;line-height:24px;font-weight:500;white-space:nowrap}
+.client-ticker-group span::before{content:'';flex:none;width:6px;height:6px;border:1px solid currentColor;border-radius:50%;opacity:.65}
+.client-ticker:hover .client-ticker-track{animation-play-state:paused}
+@keyframes client-ticker{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+@media(prefers-reduced-motion:reduce){.client-ticker-track{animation-duration:180s}}
 
 </style>
 <!-- ===== ОБОЛОЧКА ЧЕРНОВИКА ===== -->
@@ -731,7 +735,7 @@ function render(next, preserve=false){
  document.getElementById('app').innerHTML=`
  <header class="header"><meta charset="utf-8"><div class="wrap header-inner"><a href="#" aria-label="HASBA AUDIT"><img class="logo" width="1583" height="529" src="./assets/logo-dark.svg" alt="HASBA AUDIT"></a><nav class="nav" aria-label="${t.menu}">${nav}</nav><div class="languages" aria-label="Language">${['ru','uz','en'].map(l=>`<button type="button" data-lang="${l}" lang="${l}" aria-label="${{ru:'Русский',uz:'O‘zbekcha',en:'English'}[l]}" aria-pressed="${l===lang}">${l.toUpperCase()}</button>`).join('')}</div><button type="button" class="menu-button" aria-label="${t.menu}" aria-controls="mobile-nav" aria-expanded="false"><span></span><span></span></button></div><nav id="mobile-nav" class="nav-mobile" aria-label="${t.menu}">${nav}</nav></header>
  <main id="main"><section class="hero wrap"><div class="hero-meta"><span class="eyebrow">${t.organization}</span><span>${t.location}</span></div><div class="hero-grid"><div class="hero-copy"><h1>${t.headline}</h1><div class="hero-side"><p>${t.lead}</p><a class="button" href="#contact">${t.cta} ${arrow}</a></div></div><figure class="hero-photo"><img src="./assets/architecture.png" alt="" width="1536" height="1024" fetchpriority="high"></figure></div><div class="hero-band">${t.band.map((b,i)=>`<div><small>0${i+1} / ${b[0]}</small><p>${b[1].replace(/<br>/g,' ')}</p></div>`).join('')}</div></section>
- <section class="client-ticker" aria-label="${t.expertise}"><div class="wrap client-band">${t.services.map(s=>`<span>${strip(s[0])}</span>`).join('')}</div></section>
+ <section class="client-ticker" aria-label="${t.expertise}"><div class="client-ticker-track">${[false,true].map(hidden=>`<div class="client-ticker-group"${hidden?' aria-hidden="true"':''}>${[...t.services,...t.services,...t.services].map((s,i)=>`<span${!hidden&&i>=t.services.length?' aria-hidden="true"':''}>${strip(s[0])}</span>`).join('')}</div>`).join('')}</div></section>
  <section class="section wrap" id="services"><div class="section-top"><div class="section-label"><span>01</span>${t.expertise}</div><div><h2>${t.servicesTitle}</h2><p class="section-intro">${t.servicesIntro}</p></div></div><div>${t.services.map((s,i)=>`<a class="service" href="#contact" data-service="${i}" aria-label="${t.serviceAction}: ${strip(s[0])}"><span class="service-no">0${i+1}</span><h3>${s[0]}</h3><p>${s[1]}</p><span class="service-go" aria-hidden="true">↗</span></a>`).join('')}</div></section>
  <section class="section about" id="about"><div class="wrap"><div class="section-top"><div class="section-label"><span>02</span>${t.aboutLabel}</div><h2>${t.aboutTitle}</h2></div><div class="about-grid"><div class="about-copy"><p>${t.aboutText}</p><p>${t.aboutSecond}</p></div><div><div class="metrics">${t.metrics.map(m=>`<div class="metric"><strong>${m[0]}</strong><span>${m[1]}</span></div>`).join('')}</div><div class="credentials"><p>${t.certificates}</p></div></div></div></div></section>
  <section class="section wrap" id="approach"><div class="section-top"><div class="section-label"><span>03</span>${t.approachLabel}</div><div><h2>${t.approachTitle}</h2><p class="section-intro">${t.approachIntro}</p></div></div><div class="principles">${t.principles.map((p,i)=>`<article class="principle"><span>0${i+1}</span><h3>${p[0]}</h3><p>${p[1]}</p></article>`).join('')}</div><div class="audience"><h3>${t.audienceTitle}</h3><ul>${t.audience.map(a=>`<li>${a}</li>`).join('')}</ul></div></section>
